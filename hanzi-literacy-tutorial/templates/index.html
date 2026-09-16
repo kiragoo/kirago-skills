@@ -1,0 +1,433 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>宝宝识汉字 · 启蒙识字学堂</title>
+<style>
+  :root {
+    --bg: #FFF8EC;
+    --ink: #4A3B2A;
+    --card: #FFFFFF;
+    --accent: #F6A75B;
+    --good: #58B368;
+    --shadow: 0 6px 0 rgba(74,59,42,.12);
+  }
+  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  html, body { margin: 0; padding: 0; }
+  body {
+    background: var(--bg);
+    color: var(--ink);
+    font-family: "PingFang SC", "Microsoft YaHei", -apple-system, sans-serif;
+    min-height: 100vh;
+    padding: 16px;
+  }
+  .zi { font-family: "Kaiti SC", "STKaiti", "KaiTi", "PingFang SC", serif; }
+
+  header { text-align: center; padding: 12px 0 4px; }
+  header h1 { font-size: clamp(26px, 5vw, 40px); margin: 0; letter-spacing: .1em; }
+  header p { margin: 6px 0 14px; font-size: clamp(14px, 2.4vw, 17px); opacity: .75; }
+
+  .tabs { display: flex; justify-content: center; gap: 12px; margin-bottom: 20px; }
+  .tab {
+    border: 0; cursor: pointer; font-size: clamp(17px, 3vw, 21px); font-weight: 700;
+    padding: 12px 26px; border-radius: 999px; background: #fff; color: var(--ink);
+    box-shadow: var(--shadow); transition: transform .15s;
+  }
+  .tab:active { transform: scale(.94); }
+  .tab.on { background: var(--accent); color: #fff; }
+
+  /* ---------- 首页字卡 ---------- */
+  #grid {
+    display: grid; gap: 16px; max-width: 980px; margin: 0 auto;
+    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  }
+  .card {
+    background: var(--card); border-radius: 24px; overflow: hidden; cursor: pointer;
+    box-shadow: var(--shadow); transition: transform .18s; text-align: center;
+    border: 0; padding: 0; font: inherit; color: inherit;
+  }
+  .card:active { transform: scale(.93); }
+  .card img { width: 100%; height: 118px; object-fit: cover; display: block; }
+  .card .big { font-size: 58px; line-height: 1.15; margin-top: 4px; }
+  .card .py { font-size: 17px; opacity: .7; margin-bottom: 12px; }
+
+  /* ---------- 学习页 ---------- */
+  .screen { display: none; }
+  .screen.on { display: block; }
+  #learnWrap { max-width: 980px; margin: 0 auto; }
+  .learnCard {
+    background: var(--card); border-radius: 30px; box-shadow: var(--shadow);
+    padding: 20px; display: grid; gap: 20px;
+    grid-template-columns: 1fr 1fr; align-items: center;
+  }
+  @media (max-width: 640px) { .learnCard { grid-template-columns: 1fr; } }
+  .photoBox { position: relative; }
+  .photoBox img {
+    width: 100%; height: 300px; object-fit: cover; display: block;
+    border-radius: 22px; border: 8px solid var(--tone, var(--accent));
+  }
+  .photoBox .wordTag {
+    position: absolute; left: 14px; bottom: 14px;
+    background: rgba(255,255,255,.92); border-radius: 999px;
+    padding: 8px 18px; font-size: 22px; font-weight: 700;
+  }
+  .ziBox { text-align: center; }
+  #writerHost { width: 240px; height: 240px; margin: 0 auto; touch-action: none; }
+  .pyBig { font-size: 30px; margin: 4px 0 0; opacity: .8; }
+  .storyLine { font-size: 19px; margin: 10px 6px 0; line-height: 1.6; }
+  .btnRow { display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; margin-top: 16px; }
+  .kidBtn {
+    border: 0; cursor: pointer; border-radius: 999px; font: inherit; font-weight: 700;
+    font-size: 18px; padding: 13px 22px; color: #fff; background: var(--tone, var(--accent));
+    box-shadow: 0 4px 0 rgba(0,0,0,.14); transition: transform .15s;
+  }
+  .kidBtn:active { transform: scale(.93); }
+  .kidBtn.ghost { background: #efe6d6; color: var(--ink); }
+  .navRow { display: flex; justify-content: space-between; align-items: center; margin: 16px 4px 30px; }
+  .navRow .kidBtn { min-width: 108px; }
+  .dots { display: flex; gap: 7px; }
+  .dots i { width: 10px; height: 10px; border-radius: 50%; background: #e3d5bd; }
+  .dots i.on { background: var(--accent); transform: scale(1.25); }
+
+  /* ---------- 游戏页 ---------- */
+  #gameWrap { max-width: 820px; margin: 0 auto; text-align: center; }
+  .quizAsk { font-size: clamp(22px, 4.5vw, 30px); font-weight: 700; margin: 4px 0 16px; }
+  .quizAsk .z { color: #E8634B; }
+  #options { display: grid; gap: 14px; grid-template-columns: repeat(2, 1fr); max-width: 640px; margin: 0 auto; }
+  .opt { border: 0; padding: 0; cursor: pointer; border-radius: 22px; overflow: hidden;
+         background: #fff; box-shadow: var(--shadow); transition: transform .15s; font: inherit; }
+  .opt:active { transform: scale(.94); }
+  .opt img { width: 100%; height: 150px; object-fit: cover; display: block; }
+  @media (max-width: 560px) { .opt img { height: 118px; } }
+  .opt.right { outline: 6px solid var(--good); }
+  .opt.wrong { animation: wobble .4s; opacity: .6; }
+  @keyframes wobble { 25% { transform: translateX(-6px);} 75% { transform: translateX(6px);} }
+  #gameStars { font-size: 22px; margin: 14px 0; letter-spacing: .12em; }
+  .cheer { font-size: clamp(30px, 6vw, 46px); font-weight: 800; color: var(--good);
+           animation: pop .5s; min-height: 54px; }
+  @keyframes pop { 0% { transform: scale(.4); opacity: 0;} 70% { transform: scale(1.15);} 100% { transform: scale(1);} }
+
+  /* 庆祝页 */
+  #party { text-align: center; padding: 40px 10px; display: none; }
+  #party.on { display: block; }
+  #party .trophy { font-size: 90px; animation: pop .6s; }
+  #party h2 { font-size: 34px; margin: 10px 0; }
+  #party p { font-size: 20px; }
+
+  /* 彩带 */
+  .confetti { position: fixed; top: -20px; z-index: 99; border-radius: 3px; pointer-events: none;
+              animation: fall linear forwards; }
+  @keyframes fall { to { transform: translateY(105vh) rotate(720deg); opacity: .9; } }
+
+  footer { text-align: center; opacity: .55; font-size: 12.5px; margin: 26px 0 8px; line-height: 1.7; }
+  .hidden { display: none !important; }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>🌈 宝宝识汉字</h1>
+  <p>10 个象形字 · 真实照片 · 发音 · 笔顺 · 小游戏 &nbsp;（适合 3-5 岁）</p>
+  <div class="tabs">
+    <button class="tab on" id="tabLearn">📖 学一学</button>
+    <button class="tab" id="tabGame">🎯 找一找</button>
+  </div>
+</header>
+
+<!-- 学一学 -->
+<section class="screen on" id="screenLearn">
+  <div id="grid"></div>
+
+  <div id="learnWrap" class="hidden">
+    <div class="learnCard">
+      <div class="photoBox">
+        <img id="learnImg" alt="真实照片">
+        <div class="wordTag" id="learnWord"></div>
+      </div>
+      <div class="ziBox">
+        <div id="writerHost"></div>
+        <div class="pyBig" id="learnPinyin"></div>
+        <div class="storyLine" id="learnStory"></div>
+        <div class="btnRow">
+          <button class="kidBtn" id="btnSay">🔊 听一听</button>
+          <button class="kidBtn" id="btnAnimate">✏️ 看笔顺</button>
+          <button class="kidBtn ghost" id="btnQuiz">🙋 我来写</button>
+        </div>
+      </div>
+    </div>
+    <div class="navRow">
+      <button class="kidBtn ghost" id="btnPrev">⬅️ 上一个</button>
+      <div class="dots" id="learnDots"></div>
+      <button class="kidBtn ghost" id="btnNext">下一个 ➡️</button>
+    </div>
+    <div style="text-align:center; margin-bottom: 30px;">
+      <button class="kidBtn" id="btnBack">🏠 回字卡</button>
+    </div>
+  </div>
+</section>
+
+<!-- 找一找 -->
+<section class="screen" id="screenGame">
+  <div id="gameWrap">
+    <div class="cheer" id="cheer"></div>
+    <div class="quizAsk" id="quizAsk"></div>
+    <div id="gameStars"></div>
+    <div id="options"></div>
+    <div style="margin-top: 22px;">
+      <button class="kidBtn ghost" id="btnQuit">🏠 回字卡</button>
+    </div>
+  </div>
+  <div id="party">
+    <div class="trophy">🏆</div>
+    <h2>太棒啦！全部找对了！</h2>
+    <p id="partyScore"></p>
+    <div class="btnRow" style="justify-content:center;">
+      <button class="kidBtn" id="btnAgain">🔄 再玩一次</button>
+      <button class="kidBtn ghost" id="btnPartyBack">🏠 回字卡</button>
+    </div>
+  </div>
+</section>
+
+<footer>
+  照片均来自 Wikimedia Commons（真实摄影，CC 授权）· 笔顺数据 hanzi-writer-data（MIT）· 详见 CREDITS.md
+</footer>
+
+<script src="assets/hanzi-writer.min.js"></script>
+<script src="assets/strokes-data.js"></script>
+<script>
+/* ---------------- 课程数据 ✏️ 自定义区：只改这个数组 ----------------
+ * char 汉字 | pinyin 带声调拼音 | word/wordPy 配词及拼音
+ * photo 真实照片路径 | tone 本字主题色 | emoji 装饰
+ * story 一句旁白（4岁语言，必要时含安全提示，如「火很烫」）
+ * 另需 assets/hanzi-writer.min.js 与 assets/strokes-data.js（生成方法见 SKILL.md 第 3 步） */
+const HANZI = [
+  { char:'日', pinyin:'rì', word:'太阳', wordPy:'tài yáng', photo:'assets/photos/ri.jpg',
+    tone:'#F6A75B', emoji:'☀️', story:'太阳圆圆的、亮亮的，白天挂在天上，给我们温暖。' },
+  { char:'月', pinyin:'yuè', word:'月亮', wordPy:'yuè liang', photo:'assets/photos/yue.jpg',
+    tone:'#8E9DCC', emoji:'🌙', story:'弯弯的月亮挂在夜里，像一只小船。' },
+  { char:'水', pinyin:'shuǐ', word:'喝水', wordPy:'hē shuǐ', photo:'assets/photos/shui.jpg',
+    tone:'#5BB8D4', emoji:'💧', story:'清清的水哗啦啦地流，我们每天都要喝水。' },
+  { char:'火', pinyin:'huǒ', word:'火苗', wordPy:'huǒ miáo', photo:'assets/photos/huo.jpg',
+    tone:'#E8634B', emoji:'🔥', story:'红红的火苗跳呀跳。火很烫，小朋友要离远一点哦。' },
+  { char:'山', pinyin:'shān', word:'大山', wordPy:'dà shān', photo:'assets/photos/shan.jpg',
+    tone:'#7FA65A', emoji:'⛰️', story:'高高的山，尖尖的顶，山上有树，还有小动物。' },
+  { char:'木', pinyin:'mù', word:'树木', wordPy:'shù mù', photo:'assets/photos/mu.jpg',
+    tone:'#4E9A6A', emoji:'🌳', story:'大树有粗粗的树干和绿绿的树冠。木，就是树。' },
+  { char:'人', pinyin:'rén', word:'大人', wordPy:'dà rén', photo:'assets/photos/ren.jpg',
+    tone:'#E98FB4', emoji:'🙂', story:'跑来跑去的小朋友，还有爸爸妈妈，都是人。' },
+  { char:'口', pinyin:'kǒu', word:'开口', wordPy:'kāi kǒu', photo:'assets/photos/kou.jpg',
+    tone:'#F2B705', emoji:'👄', story:'张开小嘴巴，啊——口就是嘴巴，用来吃饭和说话。' },
+  { char:'鱼', pinyin:'yú', word:'金鱼', wordPy:'jīn yú', photo:'assets/photos/yu.jpg',
+    tone:'#5A8DE0', emoji:'🐟', story:'小鱼摆着尾巴，在水里游来游去。' },
+  { char:'鸟', pinyin:'niǎo', word:'小鸟', wordPy:'xiǎo niǎo', photo:'assets/photos/niao.jpg',
+    tone:'#9A7BD1', emoji:'🐦', story:'小鸟站在树枝上唱歌，它有翅膀，会在天上飞。' },
+];
+
+/* ---------------- 发音（系统语音，中文） ---------------- */
+let voiceCN = null;
+function pickVoice() {
+  try {
+    const vs = speechSynthesis.getVoices();
+    voiceCN = vs.find(v => /zh[-_]CN/i.test(v.lang) && /Tingting|Ting-Ting|Xiaoxiao|Yu-Shu|Mei-Jia|Sinji/i.test(v.name))
+           || vs.find(v => /^zh/i.test(v.lang)) || null;
+  } catch (e) {}
+}
+if ('speechSynthesis' in window) { pickVoice(); speechSynthesis.onvoiceschanged = pickVoice; }
+function speak(text, cb) {
+  if (!('speechSynthesis' in window)) { if (cb) setTimeout(cb, 600); return; }
+  try {
+    speechSynthesis.cancel();
+    const u = new SpeechSynthesisUtterance(text);
+    u.lang = 'zh-CN'; u.rate = 0.78; u.pitch = 1.15;
+    if (voiceCN) u.voice = voiceCN;
+    if (cb) u.onend = cb;
+    speechSynthesis.speak(u);
+  } catch (e) { if (cb) setTimeout(cb, 600); }
+}
+
+/* ---------------- 视图切换 ---------------- */
+const $ = id => document.getElementById(id);
+let view = 'grid';           // grid | detail
+let cur = 0;
+let writer = null;
+
+function showTab(t) {
+  $('tabLearn').classList.toggle('on', t === 'learn');
+  $('tabGame').classList.toggle('on', t === 'game');
+  $('screenLearn').classList.toggle('on', t === 'learn');
+  $('screenGame').classList.toggle('on', t === 'game');
+  try { speechSynthesis.cancel(); } catch (e) {}
+}
+$('tabLearn').onclick = () => { showTab('learn'); backToGrid(); };
+$('tabGame').onclick  = () => { showTab('game'); startGame(); };
+
+/* ---------------- 首页字卡 ---------------- */
+function buildGrid() {
+  const g = $('grid'); g.innerHTML = '';
+  HANZI.forEach((h, i) => {
+    const b = document.createElement('button');
+    b.className = 'card';
+    b.innerHTML = `<img src="${h.photo}" alt="${h.word}真实照片">
+      <div class="big zi" style="color:${h.tone}">${h.char}</div>
+      <div class="py">${h.pinyin} · ${h.word}</div>`;
+    b.onclick = () => openDetail(i);
+    g.appendChild(b);
+  });
+}
+
+function openDetail(i) {
+  cur = i; view = 'detail';
+  const h = HANZI[i];
+  $('grid').classList.add('hidden');
+  $('learnWrap').classList.remove('hidden');
+  $('learnImg').src = h.photo;
+  $('learnImg').style.setProperty('--tone', h.tone);
+  $('learnImg').parentElement.style.setProperty('--tone', h.tone);
+  $('learnWord').textContent = `${h.emoji} ${h.word}`;
+  $('learnPinyin').textContent = `${h.char}  ${h.pinyin}  ·  ${h.word} ${h.wordPy}`;
+  $('learnStory').textContent = h.story;
+  document.querySelectorAll('.learnCard .kidBtn').forEach(b => {
+    if (!b.classList.contains('ghost')) b.style.setProperty('--tone', h.tone);
+  });
+  buildDots();
+  setupWriter(h.char);
+  speak(`${h.pinyin}。${h.char}，${h.word}的${h.char}。${h.story}`);
+}
+function backToGrid() {
+  view = 'grid';
+  $('grid').classList.remove('hidden');
+  $('learnWrap').classList.add('hidden');
+  writer = null;
+}
+
+/* ---------------- 笔顺 ---------------- */
+function setupWriter(ch) {
+  const host = $('writerHost');
+  host.innerHTML = '';
+  $('writerHost').style.setProperty('--tone', HANZI[cur].tone);
+  if (typeof HanziWriter === 'undefined' || !window.STROKE_DATA || !window.STROKE_DATA[ch]) {
+    host.innerHTML = `<div class="zi" style="font-size:190px;line-height:240px;color:${HANZI[cur].tone}">${ch}</div>`;
+    writer = null; return;
+  }
+  writer = HanziWriter.create(host, ch, {
+    width: 240, height: 240, padding: 10,
+    strokeColor: '#4A3B2A',
+    highlightColor: HANZI[cur].tone,
+    outlineColor: '#E8DCC8',
+    strokeAnimationSpeed: 1.1,
+    delayBetweenStrokes: 320,
+    showOutline: true,
+    charDataLoader: (c, onComplete) => onComplete(window.STROKE_DATA[c]),
+  });
+}
+$('btnAnimate').onclick = () => {
+  if (writer) { writer.hideCharacter(); writer.animateCharacter(); }
+  const h = HANZI[cur];
+  speak(`看，${h.char}是这样写的，${h.pinyin}。`);
+};
+$('btnQuiz').onclick = () => {
+  if (writer) { writer.hideCharacter(); writer.quiz({ showHintAfterMisses: 1 }); }
+  const h = HANZI[cur];
+  speak(`该你啦，请写出${h.pinyin}，沿着灰色的字描一描。`);
+};
+$('btnSay').onclick = () => {
+  const h = HANZI[cur];
+  speak(`${h.pinyin}。${h.char}，${h.word}。`);
+};
+$('btnPrev').onclick = () => openDetail((cur + HANZI.length - 1) % HANZI.length);
+$('btnNext').onclick = () => openDetail((cur + 1) % HANZI.length);
+$('btnBack').onclick = backToGrid;
+
+function buildDots() {
+  const d = $('learnDots'); d.innerHTML = '';
+  HANZI.forEach((_, i) => {
+    const s = document.createElement('i');
+    if (i === cur) s.className = 'on';
+    d.appendChild(s);
+  });
+}
+
+/* ---------------- 找一找游戏 ---------------- */
+let order = [], round = 0, stars = 0, locked = false;
+
+function shuffle(a) { for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; }
+
+function startGame() {
+  order = shuffle(HANZI.map((_, i) => i));
+  round = 0; stars = 0;
+  $('gameWrap').classList.remove('hidden');
+  $('party').classList.remove('on');
+  $('party').style.display = 'none';
+  nextRound();
+}
+function nextRound() {
+  locked = false;
+  $('cheer').textContent = '';
+  if (round >= order.length) { return finishGame(); }
+  const target = order[round];
+  const h = HANZI[target];
+  // 3 个干扰项
+  const others = shuffle(HANZI.map((_, i) => i).filter(i => i !== target)).slice(0, 3);
+  const opts = shuffle([target, ...others]);
+  $('quizAsk').innerHTML = `找一找：<span class="z zi">「${h.char}」</span> ${h.word} 在哪里呀？`;
+  $('gameStars').textContent = '⭐'.repeat(stars) + '☆'.repeat(order.length - stars);
+  const box = $('options'); box.innerHTML = '';
+  opts.forEach(i => {
+    const b = document.createElement('button');
+    b.className = 'opt';
+    b.innerHTML = `<img src="${HANZI[i].photo}" alt="">`;
+    b.onclick = () => {
+      if (locked) return;
+      if (i === target) {
+        locked = true;
+        b.classList.add('right');
+        stars++; round++;
+        $('gameStars').textContent = '⭐'.repeat(stars) + '☆'.repeat(order.length - stars);
+        $('cheer').textContent = pickCheer();
+        confetti();
+        speak(`${pickCheer()}答对啦！${HANZI[target].pinyin}，${HANZI[target].word}。`, () => setTimeout(nextRound, 700));
+      } else {
+        b.classList.add('wrong');
+        speak('再试一次哦，没关系的。');
+        setTimeout(() => b.classList.remove('wrong'), 500);
+      }
+    };
+    box.appendChild(b);
+  });
+  speak(`找一找，${h.word}的${h.char}在哪里呀？`);
+}
+function pickCheer() {
+  return ['太棒啦！', '答对啦！', '真厉害！', '你好棒呀！', '完全正确！'][Math.floor(Math.random() * 5)];
+}
+function finishGame() {
+  $('gameWrap').classList.add('hidden');
+  const p = $('party');
+  p.style.display = 'block'; p.classList.add('on');
+  $('partyScore').textContent = `你赢得了 ${stars} 颗星星 ⭐，认识了 10 个汉字！`;
+  confetti(); confetti();
+  speak('太棒啦！你把十个汉字都找对了，你真是识字小明星！');
+}
+$('btnQuit').onclick = () => { showTab('learn'); backToGrid(); };
+$('btnPartyBack').onclick = () => { showTab('learn'); backToGrid(); };
+$('btnAgain').onclick = startGame;
+
+/* ---------------- 彩带 ---------------- */
+function confetti() {
+  const colors = ['#F6A75B', '#E8634B', '#5BB8D4', '#58B368', '#E98FB4', '#F2B705', '#9A7BD1'];
+  for (let k = 0; k < 40; k++) {
+    const c = document.createElement('div');
+    c.className = 'confetti';
+    const s = 6 + Math.random() * 8;
+    c.style.cssText = `left:${Math.random() * 100}vw;width:${s}px;height:${s * 1.4}px;
+      background:${colors[k % colors.length]};animation-duration:${1.6 + Math.random() * 1.4}s;`;
+    document.body.appendChild(c);
+    setTimeout(() => c.remove(), 3200);
+  }
+}
+
+/* ---------------- 启动 ---------------- */
+buildGrid();
+</script>
+</body>
+</html>

@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>汉字王国 · 识字启蒙动画</title>
+<style>
+  :root { color-scheme: dark; }
+  html, body { margin: 0; height: 100%; overflow: hidden;
+    font-family: "PingFang SC", "Microsoft YaHei", -apple-system, sans-serif; color: #FFF9EE; }
+  body { background: #14101e; }
+  .zi { font-family: "Kaiti SC", "STKaiti", "KaiTi", "PingFang SC", serif; }
+
+  #sceneBg { position: fixed; inset: 0; z-index: 0; transition: background 1.6s ease; }
+  #stars { position: fixed; inset: 0; z-index: 1; pointer-events: none; }
+  .star { position: absolute; width: 3px; height: 3px; border-radius: 50%; background: #fff;
+          opacity: .5; animation: twinkle 3s ease-in-out infinite; }
+  @keyframes twinkle { 50% { opacity: .1; } }
+  .mote { position: absolute; bottom: -10px; border-radius: 50%; background: rgba(255,235,190,.5);
+          animation: rise linear infinite; }
+  @keyframes rise { to { transform: translateY(-110vh); opacity: 0; } }
+
+  #stage { position: fixed; inset: 0; z-index: 2; display: flex; flex-direction: column;
+           align-items: center; justify-content: center; gap: 26px; padding: 24px; }
+  .photoCard { position: relative; border-radius: 30px; overflow: hidden;
+    box-shadow: 0 24px 80px rgba(0,0,0,.5), 0 0 0 8px rgba(255,255,255,.14);
+    opacity: 0; transform: translateY(26px) scale(.94); transition: all .9s cubic-bezier(.2,.8,.3,1); }
+  .photoCard.show { opacity: 1; transform: none; }
+  .photoCard img { display: block; width: min(58vw, 620px); height: min(44vh, 400px); object-fit: cover; }
+  @media (max-width: 640px) { .photoCard img { width: 86vw; height: 34vh; } }
+  .photoCard .cap { position: absolute; left: 16px; bottom: 14px; background: rgba(20,16,30,.72);
+    backdrop-filter: blur(6px); padding: 8px 20px; border-radius: 999px; font-size: 21px; font-weight: 700; }
+  .kenburns img { animation: kb 9s ease-in-out forwards; }
+  @keyframes kb { from { transform: scale(1.02); } to { transform: scale(1.18) translate(2%, -2%); } }
+
+  .ziCard { background: rgba(255,252,244,.97); color: #3E3323; border-radius: 28px;
+    padding: 18px 26px 14px; display: flex; align-items: center; gap: 22px;
+    box-shadow: 0 18px 60px rgba(0,0,0,.45);
+    opacity: 0; transform: scale(.7); transition: all .7s cubic-bezier(.3,1.4,.5,1); }
+  .ziCard.show { opacity: 1; transform: scale(1); }
+  #writerHost { width: 170px; height: 170px; }
+  .ziMeta { display: flex; flex-direction: column; gap: 6px; }
+  .ziMeta .big { font-size: 30px; font-weight: 800; letter-spacing: .04em; }
+  .ziMeta .py { font-size: 19px; opacity: .72; }
+  .ziMeta .wd { font-size: 23px; font-weight: 700; }
+  .ziMeta .wd i { font-style: normal; font-size: 15px; opacity: .65; margin-left: 8px; }
+
+  #sub { position: fixed; left: 50%; bottom: 96px; transform: translateX(-50%); z-index: 5;
+    text-align: center; font-size: clamp(17px, 2.6vw, 22px); line-height: 1.7; max-width: 84%;
+    background: rgba(10,8,20,.55); backdrop-filter: blur(8px); padding: 12px 26px; border-radius: 16px;
+    text-shadow: 0 2px 8px rgba(0,0,0,.5); }
+
+  #controls { position: fixed; left: 50%; bottom: 22px; transform: translateX(-50%); z-index: 6;
+    display: flex; align-items: center; gap: 10px; background: rgba(12,12,18,.6);
+    backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,.12);
+    padding: 10px 14px; border-radius: 999px; }
+  #controls button { border: 0; background: rgba(255,255,255,.1); color: #FFF9EE; font-size: 16px;
+    min-width: 40px; height: 40px; border-radius: 999px; cursor: pointer; padding: 0 12px; }
+  #controls button:hover { background: rgba(255,255,255,.2); }
+  #controls button.primary { background: #F6A75B; color: #241c14; font-weight: 700; }
+  .dots { display: flex; gap: 6px; }
+  .dot { width: 8px; height: 8px; border-radius: 50%; background: rgba(255,255,255,.28);
+         cursor: pointer; transition: all .25s; }
+  .dot.on { background: #F6A75B; width: 22px; border-radius: 5px; }
+
+  /* 开场 / 结尾 */
+  .titleSlide { text-align: center; }
+  .titleSlide h1 { font-size: clamp(40px, 9vw, 84px); margin: 0; letter-spacing: .12em;
+    text-shadow: 0 6px 30px rgba(0,0,0,.5); }
+  .titleSlide p { font-size: clamp(16px, 3vw, 22px); opacity: .85; letter-spacing: .3em; }
+  .titleSlide .emo { font-size: clamp(40px, 8vw, 72px); letter-spacing: .2em; }
+  .glow { animation: glow 2.4s ease-in-out infinite; }
+  @keyframes glow { 50% { transform: scale(1.06); text-shadow: 0 0 40px rgba(246,167,91,.8); } }
+
+  #tip { position: fixed; right: 14px; bottom: 20px; z-index: 6; font-size: 11px; color: rgba(255,255,255,.5);
+    text-align: right; line-height: 1.6; }
+</style>
+</head>
+<body>
+<div id="sceneBg"></div>
+<div id="stars"></div>
+
+<div id="stage"></div>
+<div id="sub"></div>
+
+<div id="controls">
+  <button id="prev" title="上一幕">⏮</button>
+  <button id="play" class="primary" title="播放/暂停">⏸</button>
+  <button id="next" title="下一幕">⏭</button>
+  <button id="narr" title="旁白语音开/关">🔊</button>
+  <div class="dots" id="dots"></div>
+</div>
+<div id="tip">真实照片 × 笔顺动画 × 中文旁白 · 播完自动循环<br>🔊 按钮可开关旁白语音</div>
+
+<script src="assets/hanzi-writer.min.js"></script>
+<script src="assets/strokes-data.js"></script>
+<script>
+(function () {
+  /* ✏️ 自定义区：只改这个数组，字段需与 index.html 的 HANZI 一致。
+   * 另有 bg（本幕背景渐变，取字义联想色）和 sub（本幕旁白，两个短句以内）。
+   * 幕次 = 开场 + 每字一幕 + 结尾，自动循环播放。 */
+  const HANZI = [
+    { char:'日', pinyin:'rì', word:'太阳', wordPy:'tài yáng', photo:'assets/photos/ri.jpg',
+      bg:'linear-gradient(160deg,#7a4b1f,#d98a3d 45%,#f2b25c)', tone:'#E8862E', emoji:'☀️',
+      sub:'太阳圆圆的、亮亮的。「日」，就是太阳。' },
+    { char:'月', pinyin:'yuè', word:'月亮', wordPy:'yuè liang', photo:'assets/photos/yue.jpg',
+      bg:'linear-gradient(160deg,#0d1030,#2a3670 55%,#5a6db0)', tone:'#7A8CC6', emoji:'🌙',
+      sub:'弯弯的月亮像小船。「月」，就是月亮。' },
+    { char:'水', pinyin:'shuǐ', word:'喝水', wordPy:'hē shuǐ', photo:'assets/photos/shui.jpg',
+      bg:'linear-gradient(160deg,#0f4d5c,#1d88a5 55%,#5bc3d6)', tone:'#3BA3C0', emoji:'💧',
+      sub:'清清的水哗啦啦地流。「水」，我们每天都要喝。' },
+    { char:'火', pinyin:'huǒ', word:'火苗', wordPy:'huǒ miáo', photo:'assets/photos/huo.jpg',
+      bg:'linear-gradient(160deg,#3a0d08,#8c2c12 55%,#e06a2c)', tone:'#D8542F', emoji:'🔥',
+      sub:'红红的火苗跳呀跳。「火」。火很烫，要离远一点。' },
+    { char:'山', pinyin:'shān', word:'大山', wordPy:'dà shān', photo:'assets/photos/shan.jpg',
+      bg:'linear-gradient(160deg,#2c3b22,#5d7a42 55%,#a4bd7e)', tone:'#6F9448', emoji:'⛰️',
+      sub:'高高的山，尖尖的顶。「山」，山上有小动物。' },
+    { char:'木', pinyin:'mù', word:'树木', wordPy:'shù mù', photo:'assets/photos/mu.jpg',
+      bg:'linear-gradient(160deg,#1c3a26,#3c6e45 55%,#7cae7f)', tone:'#43855A', emoji:'🌳',
+      sub:'粗粗的树干，绿绿的树冠。「木」，就是大树。' },
+    { char:'人', pinyin:'rén', word:'大人', wordPy:'dà rén', photo:'assets/photos/ren.jpg',
+      bg:'linear-gradient(160deg,#5c2144,#a94a76 55%,#e294b4)', tone:'#D26A96', emoji:'🙂',
+      sub:'跑来跑去的小朋友。「人」，就是你、我、他。' },
+    { char:'口', pinyin:'kǒu', word:'开口', wordPy:'kāi kōu', photo:'assets/photos/kou.jpg',
+      bg:'linear-gradient(160deg,#7a5a10,#c2941f 55%,#f0c95c)', tone:'#E0A81E', emoji:'👄',
+      sub:'张开小嘴巴，啊——「口」，就是嘴巴。' },
+    { char:'鱼', pinyin:'yú', word:'金鱼', wordPy:'jīn yú', photo:'assets/photos/yu.jpg',
+      bg:'linear-gradient(160deg,#122a5c,#2a4f9e 55%,#5a86d6)', tone:'#4A6FC4', emoji:'🐟',
+      sub:'小鱼摆着尾巴。「鱼」，在水里游来游去。' },
+    { char:'鸟', pinyin:'niǎo', word:'小鸟', wordPy:'xiǎo niǎo', photo:'assets/photos/niao.jpg',
+      bg:'linear-gradient(160deg,#3a2a5c,#6a4aa0 55%,#a58ad0)', tone:'#8A6BC0', emoji:'🐦',
+      sub:'小鸟站在树枝上唱歌。「鸟」，会在天上飞。' },
+  ];
+
+  const $ = id => document.getElementById(id);
+  const stage = $('stage'), sub = $('sub'), bg = $('sceneBg');
+  let scene = 0, playing = true, narration = true, writer = null;
+  let timer = null, token = 0;   // token: 切幕时使旧定时器失效
+
+  /* ---------- 语音 ---------- */
+  let voiceCN = null;
+  function pickVoice() {
+    try {
+      const vs = speechSynthesis.getVoices();
+      voiceCN = vs.find(v => /zh[-_]CN/i.test(v.lang) && /Tingting|Ting-Ting|Xiaoxiao|Yu-Shu|Mei-Jia/i.test(v.name))
+             || vs.find(v => /^zh/i.test(v.lang)) || null;
+    } catch (e) {}
+  }
+  if ('speechSynthesis' in window) { pickVoice(); speechSynthesis.onvoiceschanged = pickVoice; }
+  function speak(text, done) {
+    if (!narration || !('speechSynthesis' in window)) { if (done) setTimeout(done, 500); return; }
+    try {
+      speechSynthesis.cancel();
+      const u = new SpeechSynthesisUtterance(text);
+      u.lang = 'zh-CN'; u.rate = 0.8; u.pitch = 1.12;
+      if (voiceCN) u.voice = voiceCN;
+      if (done) u.onend = done;
+      speechSynthesis.speak(u);
+    } catch (e) { if (done) setTimeout(done, 500); }
+  }
+
+  /* ---------- 背景氛围 ---------- */
+  (function ambient() {
+    const st = $('stars');
+    for (let i = 0; i < 46; i++) {
+      const s = document.createElement('div');
+      s.className = 'star';
+      s.style.cssText = `left:${Math.random() * 100}vw;top:${Math.random() * 70}vh;
+        animation-delay:${Math.random() * 3}s;transform:scale(${0.5 + Math.random()});`;
+      st.appendChild(s);
+    }
+    for (let i = 0; i < 18; i++) {
+      const m = document.createElement('div');
+      m.className = 'mote';
+      const r = 3 + Math.random() * 6;
+      m.style.cssText = `left:${Math.random() * 100}vw;width:${r}px;height:${r}px;
+        animation-duration:${9 + Math.random() * 12}s;animation-delay:${Math.random() * 10}s;`;
+      st.appendChild(m);
+    }
+  })();
+
+  /* ---------- 场景渲染 ---------- */
+  function wait(ms, tk) {
+    return new Promise(res => {
+      const step = () => { if (tk !== token) return; if (ms <= 0) return res();
+        const d = Math.min(ms, 120); ms -= d; timer = setTimeout(step, d); };
+      step();
+    });
+  }
+
+  function clearStage() { stage.innerHTML = ''; if (writer) { try { writer.hideCharacter(); } catch (e) {} } writer = null; }
+
+  async function playTitle(tk) {
+    clearStage();
+    sub.textContent = '';
+    bg.style.background = 'linear-gradient(160deg,#241436,#4a2a6e 55%,#8a5aa0)';
+    const t = document.createElement('div');
+    t.className = 'titleSlide';
+    t.innerHTML = `<div class="emo">☀️🌙💧🔥⛰️🌳🙂👄🐟🐦</div>
+      <h1 class="zi glow">汉字王国</h1>
+      <p>十 个 象 形 字 的 旅 行</p>`;
+    stage.appendChild(t);
+    requestAnimationFrame(() => t.classList.add('glow'));
+    speak('欢迎来到汉字王国！十个汉字朋友要和你见面啦，请你仔细看，认真听。');
+    await wait(6200, tk);
+  }
+
+  async function playHanzi(i, tk) {
+    const h = HANZI[i];
+    clearStage();
+    sub.textContent = '';
+    bg.style.background = h.bg;
+
+    // 照片（Ken Burns）
+    const card = document.createElement('div');
+    card.className = 'photoCard kenburns';
+    card.innerHTML = `<img src="${h.photo}" alt="${h.word}真实照片"><div class="cap">${h.emoji} ${h.word}</div>`;
+    stage.appendChild(card);
+    await wait(60, tk);
+    card.classList.add('show');
+    sub.textContent = h.sub;
+    speak(h.sub);
+    await wait(4200, tk);
+
+    // 汉字卡（笔顺书写）
+    const zc = document.createElement('div');
+    zc.className = 'ziCard';
+    zc.innerHTML = `<div id="writerHost"></div>
+      <div class="ziMeta">
+        <div class="big zi" style="color:${h.tone}">${h.char}</div>
+        <div class="py">${h.pinyin}</div>
+        <div class="wd">${h.word}<i>${h.wordPy}</i></div>
+      </div>`;
+    stage.appendChild(zc);
+    await wait(60, tk);
+    zc.classList.add('show');
+    sub.textContent = `${h.char}，${h.pinyin}。${h.word}的${h.char}，跟我读！`;
+    speak(`${h.char}，${h.pinyin}。跟我读，${h.char}！`);
+
+    const host = zc.querySelector('#writerHost');
+    if (typeof HanziWriter !== 'undefined' && window.STROKE_DATA && window.STROKE_DATA[h.char]) {
+      writer = HanziWriter.create(host, h.char, {
+        width: 170, height: 170, padding: 8,
+        strokeColor: '#3E3323', outlineColor: '#E5D9C2', highlightColor: h.tone,
+        strokeAnimationSpeed: 1, delayBetweenStrokes: 340,
+        charDataLoader: (c, onDone) => onDone(window.STROKE_DATA[c]),
+      });
+      writer.hideCharacter();
+      writer.animateCharacter();
+    } else {
+      host.innerHTML = `<div class="zi" style="font-size:130px;line-height:170px;color:${h.tone}">${h.char}</div>`;
+    }
+
+    await wait(6400, tk);
+    sub.textContent = `你记住${h.char}了吗？`;
+    await wait(2000, tk);
+  }
+
+  async function playEnd(tk) {
+    clearStage();
+    sub.textContent = '';
+    bg.style.background = 'linear-gradient(160deg,#14351f,#2e6a3c 55%,#63a56f)';
+    const t = document.createElement('div');
+    t.className = 'titleSlide';
+    const zis = HANZI.map(x => `<span class="zi" style="color:${x.tone}">${x.char}</span>`).join(' ');
+    t.innerHTML = `<h1 class="zi glow">你学会啦！🎉</h1>
+      <div class="emo zi" style="font-size:clamp(26px,6vw,46px);margin-top:8px;">${zis}</div>
+      <p style="margin-top:22px;">日 月 水 火 山 · 木 人 口 鱼 鸟</p>`;
+    stage.appendChild(t);
+    speak('十个汉字朋友都认识你啦！你可以打开识字学堂，玩一玩找一找的小游戏哦。再见！');
+    await wait(7000, tk);
+  }
+
+  const SCENES = [-1, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, -2];  // -1 开场, -2 结尾
+
+  async function playScene(idx) {
+    const my = ++token;
+    updateDots();
+    const s = SCENES[idx];
+    try {
+      if (s === -1) await playTitle(my);
+      else if (s === -2) await playEnd(my);
+      else await playHanzi(s, my);
+    } catch (e) { /* 被打断 */ }
+    if (my !== token) return;
+    if (!playing) return;
+    const next = (idx + 1) % SCENES.length;
+    playScene(next);
+  }
+
+  /* ---------- 控制 ---------- */
+  function updateDots() {
+    document.querySelectorAll('.dot').forEach((d, i) => d.classList.toggle('on', i === scene));
+  }
+  const dotsBox = $('dots');
+  SCENES.forEach((s, i) => {
+    const d = document.createElement('div');
+    d.className = 'dot';
+    d.title = s === -1 ? '开场' : s === -2 ? '结尾' : HANZI[s].char;
+    d.onclick = () => { scene = i; playScene(scene); };
+    dotsBox.appendChild(d);
+  });
+
+  $('play').onclick = () => {
+    playing = !playing;
+    $('play').textContent = playing ? '⏸' : '▶️';
+    try { speechSynthesis.cancel(); } catch (e) {}
+    if (playing) playScene(scene);
+  };
+  $('prev').onclick = () => { scene = (scene + SCENES.length - 1) % SCENES.length; playScene(scene); };
+  $('next').onclick = () => { scene = (scene + 1) % SCENES.length; playScene(scene); };
+  $('narr').onclick = () => {
+    narration = !narration;
+    $('narr').style.background = narration ? '' : 'rgba(255,255,255,.04)';
+    $('narr').textContent = narration ? '🔊' : '🔇';
+    if (!narration) { try { speechSynthesis.cancel(); } catch (e) {} }
+  };
+
+  playScene(scene);
+})();
+</script>
+</body>
+</html>

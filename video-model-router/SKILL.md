@@ -3,7 +3,7 @@ name: video-model-router
 description: "Provider-neutral AI video generation skill. Routes one normalized request to Seedance (Volcengine Ark) or Agnes Video 2.5 Flash, validates each provider's duration/resolution/media limits before submission, and normalizes task creation, polling, and result URLs. Use for AI video generation, Seedance, 即梦, Agnes, text-to-video, image-to-video, first/last-frame video, reference-to-video, or when adding a new third-party video provider."
 metadata:
   version: "0.2.0"
-  repository: "https://github.com/kirago/ai-video"
+  repository: "https://github.com/kiragoo/kirago-skills"
 ---
 
 # Video Model Router

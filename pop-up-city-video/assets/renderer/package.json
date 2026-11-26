@@ -1,0 +1,1 @@
+{"name":"pop-up-city-video","version":"1.0.0","private":true,"scripts":{"keyframes":"node render.mjs preview","render":"node render.mjs video"},"devDependencies":{"playwright":"1.62.1"}}

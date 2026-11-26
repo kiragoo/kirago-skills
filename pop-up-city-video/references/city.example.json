@@ -1,0 +1,16 @@
+{
+  "slug": "example-city",
+  "title": "纸上城市",
+  "subtitle": "Example City",
+  "closing": "灯火之城",
+  "duration": 50,
+  "fps": 24,
+  "aspect": "9:16",
+  "art": {"map":"map.png", "desk":"desk.png", "paper":"paper.png", "greenery":"tree.png"},
+  "landmarks": [
+    {"id":"old-gate","name":"古城门","subtitle":"Old City Gate","image":"gate.png","at":[-2.7,0.5],"width":2.2,"lamps":[[-0.22,0.44],[0.24,0.46]]},
+    {"id":"central-tower","name":"钟楼","subtitle":"Clock Tower","image":"tower.png","at":[1.4,-0.5],"width":1.5}
+  ],
+  "greenery":[[-2.6,-1.7,0.78],[1.9,1.2,0.57]],
+  "moving":{"image":"tram.png","width":0.9,"motion":"ground","path":[[-4.2,1.7],[-1,1.4],[2.1,1.2],[4.1,1.1]]}
+}

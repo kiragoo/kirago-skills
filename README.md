@@ -22,6 +22,14 @@ Claude Code 可复用技能集。每个子目录是一个独立技能（含 `SKI
 - 扩展：新增 provider 只需实现 `references/provider-contract.md` 中的契约
 - 适合：文生视频、图生视频、首尾帧、参考图/音频、多 provider 路由
 
+### [pop-up-city-video](pop-up-city-video/) — 纸上城市动画
+
+用内置生图工具制作底图和地标素材，再用 Three.js 把城市做成一张能展开、能点灯的立体纸艺地图。
+
+- 产出：地图折叠、地标立起、沿路线运镜、昼夜过渡，可逐帧导出 MP4，并保留可重渲染的项目源码
+- 配置：城市、地标、路线、镜头、时长和画幅可调整；换城市无需重写渲染引擎
+- 默认：50 秒、9:16 竖屏、24 fps，无音轨；支持横屏和自定义时长
+
 ## 安装使用
 
 ```bash
@@ -33,6 +41,16 @@ ln -s "$PWD/kirago-skills/hanzi-literacy-tutorial" ~/.claude/skills/hanzi-litera
 ```
 
 之后在 Claude Code 中直接说「帮我做一套 10 个字的识字教程」即可触发。
+
+### 在 Codex 中使用纸上城市动画
+
+将 `pop-up-city-video/` 放到项目的 `.agents/skills/` 或用户目录的 `~/.agents/skills/`（Windows：`%USERPROFILE%\.agents\skills\`），然后在 Codex 输入：
+
+```text
+$pop-up-city-video 做一条 50 秒的纸上杭州，最后从西湖夜景拉升。
+```
+
+生成与导出需要内置生图工具、Python + Pillow、Node.js、Playwright Chromium 和 FFmpeg。详见[配置与运行](pop-up-city-video/references/project.md)。
 
 ## 目录约定
 
